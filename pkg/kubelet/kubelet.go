@@ -882,6 +882,10 @@ func (kl *Kubelet) GetMachineStats(req *info.ContainerInfoRequest) (*info.Contai
 	return kl.statsFromContainerPath("/", req)
 }
 
+func (kl *Kubelet) GetMachineSpec() (*info.MachineInfo, error) {
+	return kl.CadvisorClient.MachineInfo()
+}
+
 func (kl *Kubelet) healthy(container api.Container, dockerContainer *docker.APIContainers) (health.Status, error) {
 	// Give the container 60 seconds to start up.
 	if container.LivenessProbe == nil {

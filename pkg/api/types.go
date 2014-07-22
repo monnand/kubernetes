@@ -223,7 +223,7 @@ type PodState struct {
 // PodList is a list of Pods.
 type PodList struct {
 	JSONBase `json:",inline" yaml:",inline"`
-	Items    []Pod `json:"items" yaml:"items,omitempty"`
+	Items    []*Pod `json:"items" yaml:"items,omitempty"`
 }
 
 // Pod is a collection of containers, used as either input (create, update) or as output (list, get)

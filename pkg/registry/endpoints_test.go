@@ -27,10 +27,10 @@ import (
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/util"
 )
 
-func makePodList(count int) api.PodList {
-	pods := []api.Pod{}
+func makePodList(count int) *api.PodList {
+	pods := []*api.Pod{}
 	for i := 0; i < count; i++ {
-		pods = append(pods, api.Pod{
+		pods = append(pods, &api.Pod{
 			JSONBase: api.JSONBase{
 				ID: fmt.Sprintf("pod%d", i),
 			},
@@ -52,7 +52,7 @@ func makePodList(count int) api.PodList {
 			},
 		})
 	}
-	return api.PodList{
+	return &api.PodList{
 		Items: pods,
 	}
 }

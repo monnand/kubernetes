@@ -162,8 +162,8 @@ func (rm *ReplicationManager) handleWatchResponse(response *etcd.Response) (*api
 	return nil, nil
 }
 
-func (rm *ReplicationManager) filterActivePods(pods []api.Pod) []api.Pod {
-	var result []api.Pod
+func (rm *ReplicationManager) filterActivePods(pods []*api.Pod) []*api.Pod {
+	var result []*api.Pod
 	for _, value := range pods {
 		if api.PodStopped != value.CurrentState.Status {
 			result = append(result, value)

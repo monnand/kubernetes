@@ -85,6 +85,6 @@ type FakePodInfoGetter struct {
 }
 
 // GetPodInfo is a fake implementation of PodInfoGetter.GetPodInfo.
-func (c *FakePodInfoGetter) GetPodInfo(host, podID string) (api.PodInfo, error) {
-	return c.data, c.err
+func (c *FakePodInfoGetter) GetPodInfo(host, podID string) (*api.PodInfo, error) {
+	return &c.data, c.err
 }

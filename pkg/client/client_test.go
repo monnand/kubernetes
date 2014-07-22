@@ -49,7 +49,7 @@ func TestListPods(t *testing.T) {
 		Request: testRequest{Method: "GET", Path: "/pods"},
 		Response: Response{StatusCode: 200,
 			Body: api.PodList{
-				Items: []api.Pod{
+				Items: []*api.Pod{
 					{
 						CurrentState: api.PodState{
 							Status: "Foobar",
@@ -79,7 +79,7 @@ func TestListPodsLabels(t *testing.T) {
 		Response: Response{
 			StatusCode: 200,
 			Body: api.PodList{
-				Items: []api.Pod{
+				Items: []*api.Pod{
 					{
 						CurrentState: api.PodState{
 							Status: "Foobar",

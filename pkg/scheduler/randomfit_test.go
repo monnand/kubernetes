@@ -31,7 +31,7 @@ func TestRandomFitSchedulerNothingScheduled(t *testing.T) {
 		scheduler:    NewRandomFitScheduler(&fakeRegistry, r),
 		minionLister: FakeMinionLister{"m1", "m2", "m3"},
 	}
-	st.expectSchedule(api.Pod{}, "m3")
+	st.expectSchedule(&api.Pod{}, "m3")
 }
 
 func TestRandomFitSchedulerFirstScheduled(t *testing.T) {

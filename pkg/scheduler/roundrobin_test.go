@@ -28,8 +28,8 @@ func TestRoundRobinScheduler(t *testing.T) {
 		scheduler:    MakeRoundRobinScheduler(),
 		minionLister: FakeMinionLister{"m1", "m2", "m3", "m4"},
 	}
-	st.expectSchedule(api.Pod{}, "m1")
-	st.expectSchedule(api.Pod{}, "m2")
-	st.expectSchedule(api.Pod{}, "m3")
-	st.expectSchedule(api.Pod{}, "m4")
+	st.expectSchedule(&api.Pod{}, "m1")
+	st.expectSchedule(&api.Pod{}, "m2")
+	st.expectSchedule(&api.Pod{}, "m3")
+	st.expectSchedule(&api.Pod{}, "m4")
 }

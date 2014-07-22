@@ -35,7 +35,7 @@ func TestListPodsEmpty(t *testing.T) {
 
 func TestMemoryListPods(t *testing.T) {
 	registry := MakeMemoryRegistry()
-	registry.CreatePod("machine", api.Pod{JSONBase: api.JSONBase{ID: "foo"}})
+	registry.CreatePod("machine", &api.Pod{JSONBase: api.JSONBase{ID: "foo"}})
 	pods, err := registry.ListPods(labels.Everything())
 	expectNoError(t, err)
 	if len(pods) != 1 || pods[0].ID != "foo" {
@@ -57,7 +57,7 @@ func TestMemoryGetPods(t *testing.T) {
 
 func TestMemorySetGetPods(t *testing.T) {
 	registry := MakeMemoryRegistry()
-	expectedPod := api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
+	expectedPod := &api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
 	registry.CreatePod("machine", expectedPod)
 	pod, err := registry.GetPod("foo")
 	expectNoError(t, err)
@@ -68,7 +68,7 @@ func TestMemorySetGetPods(t *testing.T) {
 
 func TestMemoryUpdatePods(t *testing.T) {
 	registry := MakeMemoryRegistry()
-	pod := api.Pod{
+	pod := &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -88,8 +88,8 @@ func TestMemoryUpdatePods(t *testing.T) {
 
 func TestMemorySetUpdateGetPods(t *testing.T) {
 	registry := MakeMemoryRegistry()
-	oldPod := api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
-	expectedPod := api.Pod{
+	oldPod := &api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
+	expectedPod := &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -120,7 +120,7 @@ func TestMemoryDeletePods(t *testing.T) {
 
 func TestMemorySetDeleteGetPods(t *testing.T) {
 	registry := MakeMemoryRegistry()
-	expectedPod := api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
+	expectedPod := &api.Pod{JSONBase: api.JSONBase{ID: "foo"}}
 	registry.CreatePod("machine", expectedPod)
 	registry.DeletePod("foo")
 	pod, err := registry.GetPod("foo")

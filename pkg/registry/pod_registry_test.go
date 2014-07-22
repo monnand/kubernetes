@@ -65,7 +65,7 @@ func TestCreatePodRegistryError(t *testing.T) {
 		scheduler: &MockScheduler{},
 		registry:  mockRegistry,
 	}
-	pod := api.Pod{}
+	pod := &api.Pod{}
 	ch, err := storage.Create(pod)
 	if err != nil {
 		t.Errorf("Expected %#v, Got %#v", nil, err)
@@ -75,11 +75,11 @@ func TestCreatePodRegistryError(t *testing.T) {
 
 type MockScheduler struct {
 	err     error
-	pod     api.Pod
+	pod     *api.Pod
 	machine string
 }
 
-func (m *MockScheduler) Schedule(pod api.Pod, lister scheduler.MinionLister) (string, error) {
+func (m *MockScheduler) Schedule(pod *api.Pod, lister scheduler.MinionLister) (string, error) {
 	m.pod = pod
 	return m.machine, m.err
 }
@@ -91,7 +91,7 @@ func TestCreatePodSchedulerError(t *testing.T) {
 	storage := PodRegistryStorage{
 		scheduler: &mockScheduler,
 	}
-	pod := api.Pod{}
+	pod := &api.Pod{}
 	ch, err := storage.Create(pod)
 	if err != nil {
 		t.Errorf("Expected %#v, Got %#v", nil, err)
@@ -104,8 +104,8 @@ type MockPodStorageRegistry struct {
 	machine string
 }
 
-func (r *MockPodStorageRegistry) CreatePod(machine string, pod api.Pod) error {
-	r.MockPodRegistry.pod = &pod
+func (r *MockPodStorageRegistry) CreatePod(machine string, pod *api.Pod) error {
+	r.MockPodRegistry.pod = pod
 	r.machine = machine
 	return r.MockPodRegistry.err
 }
@@ -118,7 +118,7 @@ func TestCreatePodSetsIds(t *testing.T) {
 		scheduler: &MockScheduler{machine: "test"},
 		registry:  mockRegistry,
 	}
-	pod := api.Pod{}
+	pod := &api.Pod{}
 	ch, err := storage.Create(pod)
 	if err != nil {
 		t.Errorf("Expected %#v, Got %#v", nil, err)
@@ -144,7 +144,7 @@ func TestListPodsError(t *testing.T) {
 	if err != mockRegistry.err {
 		t.Errorf("Expected %#v, Got %#v", mockRegistry.err, err)
 	}
-	if len(pods.(api.PodList).Items) != 0 {
+	if len(pods.(*api.PodList).Items) != 0 {
 		t.Errorf("Unexpected non-zero pod list: %#v", pods)
 	}
 }
@@ -156,14 +156,14 @@ func TestListEmptyPodList(t *testing.T) {
 	}
 	pods, err := storage.List(labels.Everything())
 	expectNoError(t, err)
-	if len(pods.(api.PodList).Items) != 0 {
+	if len(pods.(*api.PodList).Items) != 0 {
 		t.Errorf("Unexpected non-zero pod list: %#v", pods)
 	}
 }
 
 func TestListPodList(t *testing.T) {
 	mockRegistry := MockPodRegistry{
-		pods: []api.Pod{
+		pods: []*api.Pod{
 			{
 				JSONBase: api.JSONBase{
 					ID: "foo",
@@ -180,7 +180,7 @@ func TestListPodList(t *testing.T) {
 		registry: &mockRegistry,
 	}
 	podsObj, err := storage.List(labels.Everything())
-	pods := podsObj.(api.PodList)
+	pods := podsObj.(*api.PodList)
 	expectNoError(t, err)
 	if len(pods.Items) != 2 {
 		t.Errorf("Unexpected pod list: %#v", pods)
@@ -198,15 +198,19 @@ func TestExtractJson(t *testing.T) {
 	storage := PodRegistryStorage{
 		registry: &mockRegistry,
 	}
-	pod := api.Pod{
+	pod := &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
 	}
-	body, err := api.Encode(&pod)
-	expectNoError(t, err)
+	body, err := api.Encode(pod)
+	if err != nil {
+		t.Fatal("Unexpected error: %#v", err)
+	}
 	podOut, err := storage.Extract(body)
-	expectNoError(t, err)
+	if err != nil {
+		t.Fatal("Unexpected error: %#v", err)
+	}
 	if !reflect.DeepEqual(pod, podOut) {
 		t.Errorf("Expected %#v, found %#v", pod, podOut)
 	}
@@ -352,7 +356,7 @@ func TestCreatePod(t *testing.T) {
 		scheduler:     scheduler.MakeRoundRobinScheduler(),
 		minionLister:  MakeMinionRegistry([]string{"machine"}),
 	}
-	pod := api.Pod{
+	pod := &api.Pod{
 		JSONBase: api.JSONBase{ID: "foo"},
 	}
 	channel, err := storage.Create(pod)
@@ -363,7 +367,7 @@ func TestCreatePod(t *testing.T) {
 	case <-channel:
 		t.Error("Unexpected read from async channel")
 	}
-	mockRegistry.UpdatePod(api.Pod{
+	mockRegistry.UpdatePod(&api.Pod{
 		JSONBase: api.JSONBase{ID: "foo"},
 		CurrentState: api.PodState{
 			Status: api.PodRunning,
@@ -403,9 +407,9 @@ func TestFillPodInfo(t *testing.T) {
 		podCache: &fakeGetter,
 	}
 
-	pod := api.Pod{}
+	pod := &api.Pod{}
 
-	storage.fillPodInfo(&pod)
+	storage.fillPodInfo(pod)
 
 	if !reflect.DeepEqual(fakeGetter.info, pod.CurrentState.Info) {
 		t.Errorf("Expected: %#v, Got %#v", fakeGetter.info, pod.CurrentState.Info)
@@ -430,9 +434,9 @@ func TestFillPodInfoNoData(t *testing.T) {
 		podCache: &fakeGetter,
 	}
 
-	pod := api.Pod{}
+	pod := &api.Pod{}
 
-	storage.fillPodInfo(&pod)
+	storage.fillPodInfo(pod)
 
 	if !reflect.DeepEqual(fakeGetter.info, pod.CurrentState.Info) {
 		t.Errorf("Expected %#v, Got %#v", fakeGetter.info, pod.CurrentState.Info)

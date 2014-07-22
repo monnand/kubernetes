@@ -24,13 +24,13 @@ import (
 // PodRegistry is an interface implemented by things that know how to store Pod objects.
 type PodRegistry interface {
 	// ListPods obtains a list of pods that match selector.
-	ListPods(selector labels.Selector) ([]api.Pod, error)
+	ListPods(selector labels.Selector) ([]*api.Pod, error)
 	// Get a specific pod
 	GetPod(podID string) (*api.Pod, error)
 	// Create a pod based on a specification, schedule it onto a specific machine.
-	CreatePod(machine string, pod api.Pod) error
+	CreatePod(machine string, pod *api.Pod) error
 	// Update an existing pod
-	UpdatePod(pod api.Pod) error
+	UpdatePod(pod *api.Pod) error
 	// Delete an existing pod
 	DeletePod(podID string) error
 }

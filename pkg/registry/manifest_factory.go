@@ -22,14 +22,14 @@ import (
 
 type ManifestFactory interface {
 	// Make a container object for a given pod, given the machine that the pod is running on.
-	MakeManifest(machine string, pod api.Pod) (api.ContainerManifest, error)
+	MakeManifest(machine string, pod *api.Pod) (api.ContainerManifest, error)
 }
 
 type BasicManifestFactory struct {
 	serviceRegistry ServiceRegistry
 }
 
-func (b *BasicManifestFactory) MakeManifest(machine string, pod api.Pod) (api.ContainerManifest, error) {
+func (b *BasicManifestFactory) MakeManifest(machine string, pod *api.Pod) (api.ContainerManifest, error) {
 	envVars, err := GetServiceEnvironmentVariables(b.serviceRegistry, machine)
 	if err != nil {
 		return api.ContainerManifest{}, err

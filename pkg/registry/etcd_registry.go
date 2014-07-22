@@ -60,14 +60,14 @@ func (registry *EtcdRegistry) helper() *tools.EtcdHelper {
 }
 
 // ListPods obtains a list of pods that match selector.
-func (registry *EtcdRegistry) ListPods(selector labels.Selector) ([]api.Pod, error) {
-	pods := []api.Pod{}
+func (registry *EtcdRegistry) ListPods(selector labels.Selector) ([]*api.Pod, error) {
+	pods := []*api.Pod{}
 	machines, err := registry.machines.List()
 	if err != nil {
 		return nil, err
 	}
 	for _, machine := range machines {
-		var machinePods []api.Pod
+		var machinePods []*api.Pod
 		err := registry.helper().ExtractList("/registry/hosts/"+machine+"/pods", &machinePods)
 		if err != nil {
 			return pods, err
@@ -93,7 +93,7 @@ func makeContainerKey(machine string) string {
 }
 
 // CreatePod creates a pod based on a specification, schedule it onto a specific machine.
-func (registry *EtcdRegistry) CreatePod(machineIn string, pod api.Pod) error {
+func (registry *EtcdRegistry) CreatePod(machineIn string, pod *api.Pod) error {
 	podOut, machine, err := registry.findPod(pod.ID)
 	if err == nil {
 		// TODO: this error message looks racy.
@@ -102,7 +102,7 @@ func (registry *EtcdRegistry) CreatePod(machineIn string, pod api.Pod) error {
 	return registry.runPod(pod, machineIn)
 }
 
-func (registry *EtcdRegistry) runPod(pod api.Pod, machine string) error {
+func (registry *EtcdRegistry) runPod(pod *api.Pod, machine string) error {
 	podKey := makePodKey(machine, pod.ID)
 	err := registry.helper().SetObj(podKey, pod)
 
@@ -126,7 +126,7 @@ func (registry *EtcdRegistry) runPod(pod api.Pod, machine string) error {
 	return err
 }
 
-func (registry *EtcdRegistry) UpdatePod(pod api.Pod) error {
+func (registry *EtcdRegistry) UpdatePod(pod *api.Pod) error {
 	return fmt.Errorf("unimplemented!")
 }
 

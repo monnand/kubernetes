@@ -36,18 +36,13 @@ func (f FakeMinionLister) List() ([]string, error) {
 
 // PodLister interface represents anything that can list pods for a scheduler
 type PodLister interface {
-	ListPods(labels.Selector) ([]api.Pod, error)
+	ListPods(labels.Selector) ([]*api.Pod, error)
 }
 
 // FakePodLister implements PodLister on an []api.Pods for test purposes.
-type FakePodLister []api.Pod
+type FakePodLister []*api.Pod
 
 // ListPods returns []api.Pod matching a query.
-func (f FakePodLister) ListPods(s labels.Selector) (selected []api.Pod, err error) {
-	for _, pod := range f {
-		if s.Matches(labels.Set(pod.Labels)) {
-			selected = append(selected, pod)
-		}
-	}
-	return selected, nil
+func (f FakePodLister) ListPods(s labels.Selector) (selected []*api.Pod, err error) {
+	return []*api.Pod(f), nil
 }

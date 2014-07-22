@@ -25,21 +25,21 @@ import (
 // An implementation of PodRegistry and ControllerRegistry that is backed by memory
 // Mainly used for testing.
 type MemoryRegistry struct {
-	podData        map[string]api.Pod
+	podData        map[string]*api.Pod
 	controllerData map[string]api.ReplicationController
 	serviceData    map[string]api.Service
 }
 
 func MakeMemoryRegistry() *MemoryRegistry {
 	return &MemoryRegistry{
-		podData:        map[string]api.Pod{},
+		podData:        map[string]*api.Pod{},
 		controllerData: map[string]api.ReplicationController{},
 		serviceData:    map[string]api.Service{},
 	}
 }
 
-func (registry *MemoryRegistry) ListPods(selector labels.Selector) ([]api.Pod, error) {
-	result := []api.Pod{}
+func (registry *MemoryRegistry) ListPods(selector labels.Selector) ([]*api.Pod, error) {
+	result := []*api.Pod{}
 	for _, value := range registry.podData {
 		if selector.Matches(labels.Set(value.Labels)) {
 			result = append(result, value)
@@ -51,13 +51,13 @@ func (registry *MemoryRegistry) ListPods(selector labels.Selector) ([]api.Pod, e
 func (registry *MemoryRegistry) GetPod(podID string) (*api.Pod, error) {
 	pod, found := registry.podData[podID]
 	if found {
-		return &pod, nil
+		return pod, nil
 	} else {
 		return nil, apiserver.NewNotFoundErr("pod", podID)
 	}
 }
 
-func (registry *MemoryRegistry) CreatePod(machine string, pod api.Pod) error {
+func (registry *MemoryRegistry) CreatePod(machine string, pod *api.Pod) error {
 	registry.podData[pod.ID] = pod
 	return nil
 }
@@ -70,7 +70,7 @@ func (registry *MemoryRegistry) DeletePod(podID string) error {
 	return nil
 }
 
-func (registry *MemoryRegistry) UpdatePod(pod api.Pod) error {
+func (registry *MemoryRegistry) UpdatePod(pod *api.Pod) error {
 	if _, ok := registry.podData[pod.ID]; !ok {
 		return apiserver.NewNotFoundErr("pod", pod.ID)
 	}

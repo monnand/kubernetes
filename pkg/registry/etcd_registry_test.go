@@ -72,7 +72,7 @@ func TestEtcdCreatePod(t *testing.T) {
 	}
 	fakeClient.Set("/registry/hosts/machine/kubelet", util.MakeJSONString([]api.ContainerManifest{}), 0)
 	registry := MakeTestEtcdRegistry(fakeClient, []string{"machine"})
-	err := registry.CreatePod("machine", api.Pod{
+	err := registry.CreatePod("machine", &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -115,7 +115,7 @@ func TestEtcdCreatePodAlreadyExisting(t *testing.T) {
 		E: nil,
 	}
 	registry := MakeTestEtcdRegistry(fakeClient, []string{"machine"})
-	err := registry.CreatePod("machine", api.Pod{
+	err := registry.CreatePod("machine", &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -140,7 +140,7 @@ func TestEtcdCreatePodWithContainersError(t *testing.T) {
 		E: tools.EtcdErrorValueRequired,
 	}
 	registry := MakeTestEtcdRegistry(fakeClient, []string{"machine"})
-	err := registry.CreatePod("machine", api.Pod{
+	err := registry.CreatePod("machine", &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -172,7 +172,7 @@ func TestEtcdCreatePodWithContainersNotFound(t *testing.T) {
 		E: tools.EtcdErrorNotFound,
 	}
 	registry := MakeTestEtcdRegistry(fakeClient, []string{"machine"})
-	err := registry.CreatePod("machine", api.Pod{
+	err := registry.CreatePod("machine", &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},
@@ -219,7 +219,7 @@ func TestEtcdCreatePodWithExistingContainers(t *testing.T) {
 		},
 	}), 0)
 	registry := MakeTestEtcdRegistry(fakeClient, []string{"machine"})
-	err := registry.CreatePod("machine", api.Pod{
+	err := registry.CreatePod("machine", &api.Pod{
 		JSONBase: api.JSONBase{
 			ID: "foo",
 		},

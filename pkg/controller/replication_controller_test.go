@@ -76,9 +76,9 @@ func makeReplicationController(replicas int) api.ReplicationController {
 }
 
 func makePodList(count int) api.PodList {
-	pods := []api.Pod{}
+	pods := []*api.Pod{}
 	for i := 0; i < count; i++ {
-		pods = append(pods, api.Pod{
+		pods = append(pods, &api.Pod{
 			JSONBase: api.JSONBase{
 				ID: fmt.Sprintf("pod%d", i),
 			},

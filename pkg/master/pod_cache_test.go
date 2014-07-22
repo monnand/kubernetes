@@ -89,14 +89,14 @@ func TestPodGetPodInfoGetter(t *testing.T) {
 }
 
 func TestPodUpdateAllContainers(t *testing.T) {
-	pod := api.Pod{
+	pod := &api.Pod{
 		JSONBase: api.JSONBase{ID: "foo"},
 		CurrentState: api.PodState{
 			Host: "machine",
 		},
 	}
 
-	pods := []api.Pod{pod}
+	pods := []*api.Pod{pod}
 	mockRegistry := registry.MakeMockPodRegistry(pods)
 
 	expected := api.PodInfo{"foo": docker.Container{ID: "foo"}}

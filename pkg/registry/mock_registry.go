@@ -26,23 +26,23 @@ import (
 type MockPodRegistry struct {
 	err  error
 	pod  *api.Pod
-	pods []api.Pod
+	pods []*api.Pod
 	sync.Mutex
 }
 
-func MakeMockPodRegistry(pods []api.Pod) *MockPodRegistry {
+func MakeMockPodRegistry(pods []*api.Pod) *MockPodRegistry {
 	return &MockPodRegistry{
 		pods: pods,
 	}
 }
 
-func (registry *MockPodRegistry) ListPods(selector labels.Selector) ([]api.Pod, error) {
+func (registry *MockPodRegistry) ListPods(selector labels.Selector) ([]*api.Pod, error) {
 	registry.Lock()
 	defer registry.Unlock()
 	if registry.err != nil {
 		return registry.pods, registry.err
 	}
-	var filtered []api.Pod
+	var filtered []*api.Pod
 	for _, pod := range registry.pods {
 		if selector.Matches(labels.Set(pod.Labels)) {
 			filtered = append(filtered, pod)
@@ -57,16 +57,16 @@ func (registry *MockPodRegistry) GetPod(podId string) (*api.Pod, error) {
 	return registry.pod, registry.err
 }
 
-func (registry *MockPodRegistry) CreatePod(machine string, pod api.Pod) error {
+func (registry *MockPodRegistry) CreatePod(machine string, pod *api.Pod) error {
 	registry.Lock()
 	defer registry.Unlock()
 	return registry.err
 }
 
-func (registry *MockPodRegistry) UpdatePod(pod api.Pod) error {
+func (registry *MockPodRegistry) UpdatePod(pod *api.Pod) error {
 	registry.Lock()
 	defer registry.Unlock()
-	registry.pod = &pod
+	registry.pod = pod
 	return registry.err
 }
 

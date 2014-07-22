@@ -39,7 +39,7 @@ func NewRandomFitScheduler(podLister PodLister, random *rand.Rand) Scheduler {
 	}
 }
 
-func (s *RandomFitScheduler) containsPort(pod api.Pod, port api.Port) bool {
+func (s *RandomFitScheduler) containsPort(pod *api.Pod, port api.Port) bool {
 	for _, container := range pod.DesiredState.Manifest.Containers {
 		for _, podPort := range container.Ports {
 			if podPort.HostPort == port.HostPort {
@@ -51,12 +51,12 @@ func (s *RandomFitScheduler) containsPort(pod api.Pod, port api.Port) bool {
 }
 
 // Schedule schedules a pod on a random machine which matches its requirement.
-func (s *RandomFitScheduler) Schedule(pod api.Pod, minionLister MinionLister) (string, error) {
+func (s *RandomFitScheduler) Schedule(pod *api.Pod, minionLister MinionLister) (string, error) {
 	machines, err := minionLister.List()
 	if err != nil {
 		return "", err
 	}
-	machineToPods := map[string][]api.Pod{}
+	machineToPods := map[string][]*api.Pod{}
 	pods, err := s.podLister.ListPods(labels.Everything())
 	if err != nil {
 		return "", err

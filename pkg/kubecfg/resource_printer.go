@@ -123,7 +123,7 @@ func (h *HumanReadablePrinter) printPod(pod *api.Pod, w io.Writer) error {
 
 func (h *HumanReadablePrinter) printPodList(podList *api.PodList, w io.Writer) error {
 	for _, pod := range podList.Items {
-		if err := h.printPod(&pod, w); err != nil {
+		if err := h.printPod(pod, w); err != nil {
 			return err
 		}
 	}

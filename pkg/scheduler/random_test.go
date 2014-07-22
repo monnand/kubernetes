@@ -30,5 +30,5 @@ func TestRandomScheduler(t *testing.T) {
 		scheduler:    MakeRandomScheduler(random),
 		minionLister: FakeMinionLister{"m1", "m2", "m3", "m4"},
 	}
-	st.expectSuccess(api.Pod{})
+	st.expectSuccess(&api.Pod{})
 }

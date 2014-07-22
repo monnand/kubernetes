@@ -73,11 +73,11 @@ func (storage *PodRegistryStorage) List(selector labels.Selector) (interface{}, 
 	if err == nil {
 		result.Items = pods
 		for i := range result.Items {
-			storage.fillPodInfo(&result.Items[i])
+			storage.fillPodInfo(result.Items[i])
 		}
 	}
 
-	return result, err
+	return &result, err
 }
 
 func (storage *PodRegistryStorage) fillPodInfo(pod *api.Pod) {
@@ -188,13 +188,13 @@ func (storage *PodRegistryStorage) Delete(id string) (<-chan interface{}, error)
 }
 
 func (storage *PodRegistryStorage) Extract(body []byte) (interface{}, error) {
-	pod := api.Pod{}
-	err := api.DecodeInto(body, &pod)
+	pod := &api.Pod{}
+	err := api.DecodeInto(body, pod)
 	return pod, err
 }
 
 func (storage *PodRegistryStorage) Create(obj interface{}) (<-chan interface{}, error) {
-	pod := obj.(api.Pod)
+	pod := obj.(*api.Pod)
 	if len(pod.ID) == 0 {
 		pod.ID = uuid.NewUUID().String()
 	}
@@ -215,7 +215,7 @@ func (storage *PodRegistryStorage) Create(obj interface{}) (<-chan interface{}, 
 }
 
 func (storage *PodRegistryStorage) Update(obj interface{}) (<-chan interface{}, error) {
-	pod := obj.(api.Pod)
+	pod := obj.(*api.Pod)
 	if len(pod.ID) == 0 {
 		return nil, fmt.Errorf("ID should not be empty: %#v", pod)
 	}
@@ -229,7 +229,7 @@ func (storage *PodRegistryStorage) Update(obj interface{}) (<-chan interface{}, 
 	}), nil
 }
 
-func (storage *PodRegistryStorage) waitForPodRunning(pod api.Pod) (interface{}, error) {
+func (storage *PodRegistryStorage) waitForPodRunning(pod *api.Pod) (interface{}, error) {
 	for {
 		podObj, err := storage.Get(pod.ID)
 

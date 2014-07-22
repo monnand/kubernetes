@@ -112,7 +112,7 @@ func validateAction(expectedAction, actualAction Action, t *testing.T) {
 func TestUpdateWithPods(t *testing.T) {
 	client := FakeKubeClient{
 		pods: api.PodList{
-			Items: []api.Pod{
+			Items: []*api.Pod{
 				{JSONBase: api.JSONBase{ID: "pod-1"}},
 				{JSONBase: api.JSONBase{ID: "pod-2"}},
 			},

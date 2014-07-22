@@ -190,7 +190,7 @@ func TestControllerParsing(t *testing.T) {
 func TestCreateController(t *testing.T) {
 	mockRegistry := MockControllerRegistry{}
 	mockPodRegistry := MockPodRegistry{
-		pods: []api.Pod{
+		pods: []*api.Pod{
 			{
 				JSONBase: api.JSONBase{ID: "foo"},
 			},
@@ -218,7 +218,7 @@ func TestCreateController(t *testing.T) {
 	}
 
 	mockPodRegistry.Lock()
-	mockPodRegistry.pods = []api.Pod{
+	mockPodRegistry.pods = []*api.Pod{
 		{
 			JSONBase: api.JSONBase{ID: "foo"},
 		},

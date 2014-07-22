@@ -78,7 +78,7 @@ func TestEtcdCreatePod(t *testing.T) {
 		},
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Name: "foo",
 					},
@@ -179,7 +179,7 @@ func TestEtcdCreatePodWithContainersNotFound(t *testing.T) {
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
 				ID: "foo",
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Name: "foo",
 					},
@@ -226,7 +226,7 @@ func TestEtcdCreatePodWithExistingContainers(t *testing.T) {
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
 				ID: "foo",
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Name: "foo",
 					},

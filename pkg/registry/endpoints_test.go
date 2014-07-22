@@ -36,7 +36,7 @@ func makePodList(count int) *api.PodList {
 			},
 			DesiredState: api.PodState{
 				Manifest: api.ContainerManifest{
-					Containers: []api.Container{
+					Containers: []*api.Container{
 						{
 							Ports: []api.Port{
 								{
@@ -59,7 +59,7 @@ func makePodList(count int) *api.PodList {
 
 func TestFindPort(t *testing.T) {
 	manifest := api.ContainerManifest{
-		Containers: []api.Container{
+		Containers: []*api.Container{
 			{
 				Ports: []api.Port{
 					{

@@ -55,7 +55,7 @@ func TestHealthChecker(t *testing.T) {
 		if tt.status == statusServerEarlyShutdown {
 			ts.Close()
 		}
-		container := api.Container{
+		container := &api.Container{
 			LivenessProbe: &api.LivenessProbe{
 				HTTPGet: &api.HTTPGetProbe{
 					Port: port,
@@ -77,7 +77,7 @@ func TestHealthChecker(t *testing.T) {
 }
 
 func TestFindPort(t *testing.T) {
-	container := api.Container{
+	container := &api.Container{
 		Ports: []api.Port{
 			{
 				Name:     "foo",

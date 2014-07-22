@@ -60,7 +60,7 @@ func TestParsePod(t *testing.T) {
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
 				ID: "My manifest",
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{Name: "my container"},
 				},
 				Volumes: []api.Volume{
@@ -92,7 +92,7 @@ func TestParseController(t *testing.T) {
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
 						ID: "My manifest",
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{Name: "my container"},
 						},
 						Volumes: []api.Volume{

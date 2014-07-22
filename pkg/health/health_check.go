@@ -27,7 +27,7 @@ import (
 
 // HealthChecker defines an abstract interface for checking container health.
 type HealthChecker interface {
-	HealthCheck(container api.Container) (Status, error)
+	HealthCheck(container *api.Container) (Status, error)
 }
 
 // NewHealthChecker creates a new HealthChecker which supports multiple types of liveness probes.
@@ -49,7 +49,7 @@ type MuxHealthChecker struct {
 // HealthCheck delegates the health-checking of the container to one of the bundled implementations.
 // It chooses an implementation according to container.LivenessProbe.Type.
 // If there is no matching health checker it returns Unknown, nil.
-func (m *MuxHealthChecker) HealthCheck(container api.Container) (Status, error) {
+func (m *MuxHealthChecker) HealthCheck(container *api.Container) (Status, error) {
 	checker, ok := m.checkers[container.LivenessProbe.Type]
 	if !ok || checker == nil {
 		glog.Warningf("Failed to find health checker for %s %s", container.Name, container.LivenessProbe.Type)
@@ -63,7 +63,7 @@ type HTTPHealthChecker struct {
 	client HTTPGetInterface
 }
 
-func (h *HTTPHealthChecker) findPort(container api.Container, portName string) int64 {
+func (h *HTTPHealthChecker) findPort(container *api.Container, portName string) int64 {
 	for _, port := range container.Ports {
 		if port.Name == portName {
 			// TODO This means you can only health check exposed ports
@@ -74,7 +74,7 @@ func (h *HTTPHealthChecker) findPort(container api.Container, portName string) i
 }
 
 // HealthCheck checks if the container is healthy by trying sending HTTP Get requests to the container.
-func (h *HTTPHealthChecker) HealthCheck(container api.Container) (Status, error) {
+func (h *HTTPHealthChecker) HealthCheck(container *api.Container) (Status, error) {
 	params := container.LivenessProbe.HTTPGet
 	if params == nil {
 		return Unknown, fmt.Errorf("Error, no HTTP parameters specified: %v", container)

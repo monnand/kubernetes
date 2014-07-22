@@ -616,7 +616,7 @@ func (kl *Kubelet) syncManifest(manifest *api.ContainerManifest, dockerContainer
 			glog.Errorf("Failed to create container: %v skipping manifest %s container %s.", err, manifest.ID, container.Name)
 			continue
 		}
-		containerID, err := kl.runContainer(manifest, &container, podVolumes, "container:"+string(netID))
+		containerID, err := kl.runContainer(manifest, container, podVolumes, "container:"+string(netID))
 		if err != nil {
 			// TODO(bburns) : Perhaps blacklist a container after N failures?
 			glog.Errorf("Error running manifest %s container %s: %v", manifest.ID, container.Name, err)
@@ -807,7 +807,7 @@ func (kl *Kubelet) GetMachineInfo() (*info.MachineInfo, error) {
 	return kl.CadvisorClient.MachineInfo()
 }
 
-func (kl *Kubelet) healthy(container api.Container, dockerContainer *docker.APIContainers) (health.Status, error) {
+func (kl *Kubelet) healthy(container *api.Container, dockerContainer *docker.APIContainers) (health.Status, error) {
 	// Give the container 60 seconds to start up.
 	if container.LivenessProbe == nil {
 		return health.Healthy, nil

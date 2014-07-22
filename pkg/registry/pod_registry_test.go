@@ -258,7 +258,7 @@ func TestGetPodCloud(t *testing.T) {
 func TestMakePodStatus(t *testing.T) {
 	desiredState := api.PodState{
 		Manifest: api.ContainerManifest{
-			Containers: []api.Container{
+			Containers: []*api.Container{
 				{Name: "containerA"},
 				{Name: "containerB"},
 			},

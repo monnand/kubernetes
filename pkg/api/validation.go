@@ -205,11 +205,10 @@ func validateVolumeMounts(mounts []VolumeMount, volumes util.StringSet) errorLis
 
 // AccumulateUniquePorts runs an extraction function on each Port of each Container,
 // accumulating the results and returning an error if any ports conflict.
-func AccumulateUniquePorts(containers []Container, accumulator map[int]bool, extract func(*Port) int) errorList {
+func AccumulateUniquePorts(containers []*Container, accumulator map[int]bool, extract func(*Port) int) errorList {
 	allErrs := errorList{}
 
-	for ci := range containers {
-		ctr := &containers[ci]
+	for _, ctr := range containers {
 		for pi := range ctr.Ports {
 			port := extract(&ctr.Ports[pi])
 			if accumulator[port] {
@@ -223,17 +222,17 @@ func AccumulateUniquePorts(containers []Container, accumulator map[int]bool, ext
 }
 
 // Checks for colliding Port.HostPort values across a slice of containers.
-func checkHostPortConflicts(containers []Container) errorList {
+func checkHostPortConflicts(containers []*Container) errorList {
 	allPorts := map[int]bool{}
 	return AccumulateUniquePorts(containers, allPorts, func(p *Port) int { return p.HostPort })
 }
 
-func validateContainers(containers []Container, volumes util.StringSet) errorList {
+func validateContainers(containers []*Container, volumes util.StringSet) errorList {
 	allErrs := errorList{}
 
 	allNames := util.StringSet{}
 	for i := range containers {
-		ctr := &containers[i] // so we can set default values
+		ctr := containers[i] // so we can set default values
 		if !util.IsDNSLabel(ctr.Name) {
 			allErrs.Append(makeInvalidError("Container.Name", ctr.Name))
 		} else if allNames.Has(ctr.Name) {

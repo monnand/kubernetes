@@ -53,9 +53,9 @@ type ContainerManifest struct {
 	Version string `yaml:"version" json:"version"`
 	// Required: This must be a DNS_SUBDOMAIN.
 	// TODO: ID on Manifest is deprecated and will be removed in the future.
-	ID         string      `yaml:"id" json:"id"`
-	Volumes    []Volume    `yaml:"volumes" json:"volumes"`
-	Containers []Container `yaml:"containers" json:"containers"`
+	ID         string       `yaml:"id" json:"id"`
+	Volumes    []Volume     `yaml:"volumes" json:"volumes"`
+	Containers []*Container `yaml:"containers" json:"containers"`
 }
 
 // Volume represents a named volume in a pod that may be accessed by any containers in the pod.

@@ -70,7 +70,7 @@ func makePod(host string, hostPorts ...int) *api.Pod {
 		},
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Ports: networkPorts,
 					},

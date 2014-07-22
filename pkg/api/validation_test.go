@@ -163,7 +163,7 @@ func TestValidateVolumeMounts(t *testing.T) {
 func TestValidateContainers(t *testing.T) {
 	volumes := util.StringSet{}
 
-	successCase := []Container{
+	successCase := []*Container{
 		{Name: "abc", Image: "image"},
 		{Name: "123", Image: "image"},
 		{Name: "abc-123", Image: "image"},
@@ -172,7 +172,7 @@ func TestValidateContainers(t *testing.T) {
 		t.Errorf("expected success: %v", errs)
 	}
 
-	errorCases := map[string][]Container{
+	errorCases := map[string][]*Container{
 		"zero-length name":     {{Name: "", Image: "image"}},
 		"name > 63 characters": {{Name: strings.Repeat("a", 64), Image: "image"}},
 		"name not a DNS label": {{Name: "a.b.c", Image: "image"}},
@@ -209,7 +209,7 @@ func TestValidateManifest(t *testing.T) {
 			ID:      "abc",
 			Volumes: []Volume{{Name: "vol1", Source: &VolumeSource{HostDirectory: &HostDirectory{"/mnt/vol1"}}},
 				{Name: "vol2", Source: &VolumeSource{HostDirectory: &HostDirectory{"/mnt/vol2"}}}},
-			Containers: []Container{
+			Containers: []*Container{
 				{
 					Name:       "abc",
 					Image:      "image",
@@ -255,7 +255,7 @@ func TestValidateManifest(t *testing.T) {
 		"invalid container name": {
 			Version:    "v1beta1",
 			ID:         "abc",
-			Containers: []Container{{Name: "ctr.1", Image: "image"}},
+			Containers: []*Container{{Name: "ctr.1", Image: "image"}},
 		},
 	}
 	for k, v := range errorCases {

@@ -59,7 +59,7 @@ func makeReplicationController(replicas int) api.ReplicationController {
 			PodTemplate: api.PodTemplate{
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{
 								Image: "foo/bar",
 							},
@@ -176,7 +176,7 @@ func TestCreateReplica(t *testing.T) {
 			PodTemplate: api.PodTemplate{
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{
 								Image: "foo/bar",
 							},
@@ -352,7 +352,7 @@ func TestSyncronize(t *testing.T) {
 			PodTemplate: api.PodTemplate{
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{
 								Image: "foo/bar",
 							},
@@ -372,7 +372,7 @@ func TestSyncronize(t *testing.T) {
 			PodTemplate: api.PodTemplate{
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{
 								Image: "bar/baz",
 							},

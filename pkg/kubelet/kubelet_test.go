@@ -303,7 +303,7 @@ func TestGetKubeletStateFromEtcd(t *testing.T) {
 	fakeClient.Data["/registry/hosts/machine/kubelet"] = tools.EtcdResponseWithError{
 		R: &etcd.Response{
 			Node: &etcd.Node{
-				Value: util.MakeJSONString([]api.Container{}),
+				Value: util.MakeJSONString([]*api.Container{}),
 			},
 		},
 		E: nil,
@@ -375,7 +375,7 @@ func TestSyncManifestsDoesNothing(t *testing.T) {
 	err := kubelet.SyncManifests([]api.ContainerManifest{
 		{
 			ID: "foo",
-			Containers: []api.Container{
+			Containers: []*api.Container{
 				{Name: "bar"},
 			},
 		},
@@ -421,7 +421,7 @@ func TestSyncManifestsDeletes(t *testing.T) {
 
 type FalseHealthChecker struct{}
 
-func (f *FalseHealthChecker) HealthCheck(container api.Container) (health.Status, error) {
+func (f *FalseHealthChecker) HealthCheck(container *api.Container) (health.Status, error) {
 	return health.Unhealthy, nil
 }
 
@@ -443,7 +443,7 @@ func TestSyncManifestsUnhealthy(t *testing.T) {
 	err := kubelet.SyncManifests([]api.ContainerManifest{
 		{
 			ID: "foo",
-			Containers: []api.Container{
+			Containers: []*api.Container{
 				{Name: "bar",
 					LivenessProbe: &api.LivenessProbe{
 						// Always returns healthy == false
@@ -505,7 +505,7 @@ func TestEventWritingError(t *testing.T) {
 }
 
 func TestMakeEnvVariables(t *testing.T) {
-	container := api.Container{
+	container := &api.Container{
 		Env: []api.EnvVar{
 			{
 				Name:  "foo",
@@ -517,7 +517,7 @@ func TestMakeEnvVariables(t *testing.T) {
 			},
 		},
 	}
-	vars := makeEnvironmentVariables(&container)
+	vars := makeEnvironmentVariables(container)
 	if len(vars) != len(container.Env) {
 		t.Errorf("Vars don't match.  Expected: %#v Found: %#v", container.Env, vars)
 	}
@@ -555,7 +555,7 @@ func TestMountExternalVolumes(t *testing.T) {
 }
 
 func TestMakeVolumesAndBinds(t *testing.T) {
-	container := api.Container{
+	container := &api.Container{
 		VolumeMounts: []api.VolumeMount{
 			{
 				MountPath: "/mnt/path",
@@ -585,7 +585,7 @@ func TestMakeVolumesAndBinds(t *testing.T) {
 	podVolumes := make(volumeMap)
 	podVolumes["disk4"] = &volume.HostDirectory{"/mnt/host"}
 
-	volumes, binds := makeVolumesAndBinds("pod", &container, podVolumes)
+	volumes, binds := makeVolumesAndBinds("pod", container, podVolumes)
 
 	expectedVolumes := []string{"/mnt/path", "/mnt/path2"}
 	expectedBinds := []string{"/exports/pod/disk:/mnt/path", "/exports/pod/disk2:/mnt/path2:ro", "/mnt/path3:/mnt/path3",
@@ -605,7 +605,7 @@ func TestMakeVolumesAndBinds(t *testing.T) {
 }
 
 func TestMakePortsAndBindings(t *testing.T) {
-	container := api.Container{
+	container := &api.Container{
 		Ports: []api.Port{
 			{
 				ContainerPort: 80,
@@ -629,7 +629,7 @@ func TestMakePortsAndBindings(t *testing.T) {
 			},
 		},
 	}
-	exposedPorts, bindings := makePortsAndBindings(&container)
+	exposedPorts, bindings := makePortsAndBindings(container)
 	if len(container.Ports) != len(exposedPorts) ||
 		len(container.Ports) != len(bindings) {
 		t.Errorf("Unexpected ports and bindings, %#v %#v %#v", container, exposedPorts, bindings)
@@ -670,24 +670,24 @@ func TestMakePortsAndBindings(t *testing.T) {
 
 func TestCheckHostPortConflicts(t *testing.T) {
 	successCaseAll := []api.ContainerManifest{
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 80}}}}},
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 81}}}}},
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 82}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 80}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 81}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 82}}}}},
 	}
 	successCaseNew := api.ContainerManifest{
-		Containers: []api.Container{{Ports: []api.Port{{HostPort: 83}}}},
+		Containers: []*api.Container{{Ports: []api.Port{{HostPort: 83}}}},
 	}
 	if errs := checkHostPortConflicts(successCaseAll, &successCaseNew); len(errs) != 0 {
 		t.Errorf("Expected success: %v", errs)
 	}
 
 	failureCaseAll := []api.ContainerManifest{
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 80}}}}},
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 81}}}}},
-		{Containers: []api.Container{{Ports: []api.Port{{HostPort: 82}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 80}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 81}}}}},
+		{Containers: []*api.Container{{Ports: []api.Port{{HostPort: 82}}}}},
 	}
 	failureCaseNew := api.ContainerManifest{
-		Containers: []api.Container{{Ports: []api.Port{{HostPort: 81}}}},
+		Containers: []*api.Container{{Ports: []api.Port{{HostPort: 81}}}},
 	}
 	if errs := checkHostPortConflicts(failureCaseAll, &failureCaseNew); len(errs) == 0 {
 		t.Errorf("Expected failure")

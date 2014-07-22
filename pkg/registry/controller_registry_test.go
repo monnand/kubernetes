@@ -145,7 +145,7 @@ func TestControllerParsing(t *testing.T) {
 			PodTemplate: api.PodTemplate{
 				DesiredState: api.PodState{
 					Manifest: api.ContainerManifest{
-						Containers: []api.Container{
+						Containers: []*api.Container{
 							{
 								Image: "dockerfile/nginx",
 								Ports: []api.Port{

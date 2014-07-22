@@ -34,7 +34,7 @@ func TestMakeManifestNoServices(t *testing.T) {
 		JSONBase: api.JSONBase{ID: "foobar"},
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Name: "foo",
 					},
@@ -76,7 +76,7 @@ func TestMakeManifestServices(t *testing.T) {
 	manifest, err := factory.MakeManifest("machine", &api.Pod{
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Name: "foo",
 					},
@@ -149,7 +149,7 @@ func TestMakeManifestServicesExistingEnvVar(t *testing.T) {
 	manifest, err := factory.MakeManifest("machine", &api.Pod{
 		DesiredState: api.PodState{
 			Manifest: api.ContainerManifest{
-				Containers: []api.Container{
+				Containers: []*api.Container{
 					{
 						Env: []api.EnvVar{
 							{

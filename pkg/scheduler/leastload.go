@@ -194,27 +194,49 @@ func (self *machineSelector) FeasibleMachines() ([]string, error) {
 	return self.feasibleMachines, nil
 }
 
-type resourceCalculatorBasedOnPercentiles struct {
-	cpuPercentile       int
-	memPercentile       int
+// TODO(monnand): We do need a better name.
+type machineRootInfo struct {
+	ContainerInfo *info.ContainerInfo
+	MachineInfo   *info.MachineInfo
+}
+
+type machineRootInfoGetter struct {
 	containerInfoGetter client.ContainerInfoGetter
 }
 
-func (self *resourceCalculatorBasedOnPercentiles) MaxContainer(host string) (*info.ContainerSpec, error) {
+func (self *machineRootInfoGetter) GetMachineRootInfo(host string, req *info.ContainerInfoRequest) (*machineRootInfo, error) {
 	machineSpec, err := self.containerInfoGetter.GetMachineInfo(host)
 	if err != nil {
 		return nil, err
 	}
+	machineStats, err := self.containerInfoGetter.GetRootInfo(host, req)
+	if err != nil {
+		return nil, err
+	}
+	return &machineRootInfo{
+		ContainerInfo: machineStats,
+		MachineInfo:   machineSpec,
+	}, nil
+}
+
+type resourceCalculatorBasedOnPercentiles struct {
+	cpuPercentile int
+	memPercentile int
+	infoGetter    *machineRootInfoGetter
+}
+
+func (self *resourceCalculatorBasedOnPercentiles) MaxContainer(host string) (*info.ContainerSpec, error) {
 	req := &info.ContainerInfoRequest{
 		NumStats:               1,
 		NumSamples:             1,
 		CpuUsagePercentiles:    []int{self.cpuPercentile},
 		MemoryUsagePercentages: []int{self.memPercentile},
 	}
-	machineStats, err := self.containerInfoGetter.GetRootInfo(host, req)
+	mrinfo, err := self.infoGetter.GetMachineRootInfo(host, req)
 	if err != nil {
 		return nil, err
 	}
+	machineStats, machineSpec := mrinfo.ContainerInfo, mrinfo.MachineInfo
 
 	cpuUsage := machineStats.StatsPercentiles.CpuUsagePercentiles[0].Value
 	memUsage := machineStats.StatsPercentiles.MemoryUsagePercentiles[0].Value
@@ -234,9 +256,9 @@ func (self *resourceCalculatorBasedOnPercentiles) MaxContainer(host string) (*in
 
 func NewResourceCalculatorBasedOnPercentiles(cpuPercentile, memPercentile int, getter client.ContainerInfoGetter) FreeResourceCalculator {
 	return &resourceCalculatorBasedOnPercentiles{
-		cpuPercentile:       cpuPercentile,
-		memPercentile:       memPercentile,
-		containerInfoGetter: getter,
+		cpuPercentile: cpuPercentile,
+		memPercentile: memPercentile,
+		infoGetter:    &machineRootInfoGetter{getter},
 	}
 }
 

@@ -230,7 +230,7 @@ func (self *resourceCalculatorBasedOnPercentiles) MaxContainer(host string) (*in
 		NumStats:               1,
 		NumSamples:             1,
 		CpuUsagePercentiles:    []int{self.cpuPercentile},
-		MemoryUsagePercentages: []int{self.memPercentile},
+		MemoryUsagePercentiles: []int{self.memPercentile},
 	}
 	mrinfo, err := self.infoGetter.GetMachineRootInfo(host, req)
 	if err != nil {
@@ -263,8 +263,8 @@ func NewResourceCalculatorBasedOnPercentiles(cpuPercentile, memPercentile int, g
 }
 
 type machineSetWithSemiorder struct {
-	calc     FreeResourceCalculator
-	machines []string
+	resources []*info.ContainerSpec
+	machines  []string
 }
 
 func (self *machineSetWithSemiorder) Len() int {
@@ -273,23 +273,12 @@ func (self *machineSetWithSemiorder) Len() int {
 
 func (self *machineSetWithSemiorder) Swap(i, j int) {
 	self.machines[i], self.machines[j] = self.machines[j], self.machines[i]
+	self.resources[i], self.resources[j] = self.resources[j], self.resources[i]
 }
 
 func (self *machineSetWithSemiorder) Less(i, j int) bool {
-	maxContainerOnI, err := self.calc.MaxContainer(self.machines[i])
-	if err != nil {
-		// XXX(monnand): How could be report this error?
-
-		// If the ith machine's info is not available, then it is
-		// smaller than j.
-		return true
-	}
-	maxContainerOnJ, err := self.calc.MaxContainer(self.machines[j])
-	if err != nil {
-		// If the jth machine's info is not available, then it is
-		// smaller than i.
-		return false
-	}
+	maxContainerOnI := self.resources[i]
+	maxContainerOnJ := self.resources[j]
 	// TODO(monnand): Use some more advanced algorithm.
 	return maxContainerOnI.Memory.Limit < maxContainerOnJ.Memory.Limit
 }
@@ -341,9 +330,18 @@ func (self *LeastLoadScheduler) Schedule(pod api.Pod, minionLister MinionLister)
 		return "", err
 	}
 
+	freeResources := make([]*info.ContainerSpec, 0, len(machines))
+	for _, machine := range machines {
+		r, err := self.calc.MaxContainer(machine)
+		if err != nil {
+			return "", err
+		}
+		freeResources = append(freeResources, r)
+	}
+
 	semiorderSet := &machineSetWithSemiorder{
-		machines: machines,
-		calc:     self.calc,
+		machines:  machines,
+		resources: freeResources,
 	}
 	// TODO(monnand): A heap would be better.
 	sort.Sort(semiorderSet)

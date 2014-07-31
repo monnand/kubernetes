@@ -22,7 +22,7 @@ NUM_MINIONS=4
 # gcloud/gcutil will expand this to the latest supported image.
 IMAGE=backports-debian-7-wheezy
 NETWORK=default
-INSTANCE_PREFIX=kubernetes
+INSTANCE_PREFIX=nan
 MASTER_NAME="${INSTANCE_PREFIX}-master"
 MASTER_TAG="${INSTANCE_PREFIX}-master"
 MINION_TAG="${INSTANCE_PREFIX}-minion"

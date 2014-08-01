@@ -25,6 +25,7 @@ import (
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/api"
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/client"
 	"github.com/GoogleCloudPlatform/kubernetes/pkg/labels"
+	"github.com/golang/glog"
 	"github.com/google/cadvisor/info"
 )
 
@@ -294,8 +295,37 @@ type LeastLoadScheduler struct {
 	minContainer minContainerEstimator
 }
 
+func NewLeastLoadScheduler(lister PodLister, getter client.ContainerInfoGetter) Scheduler {
+	glog.Infof("Using least load scheduler")
+	return &LeastLoadScheduler{
+		machineRecentScheduledTime: make(map[string]time.Time, 16),
+		calc:      NewResourceCalculatorBasedOnPercentiles(99, 99, getter),
+		podLister: lister,
+		minContainer: &staticMinContainerEstimator{
+			102400,
+			200000,
+		},
+	}
+}
+
 type minContainerEstimator interface {
 	MinContainer(pod *api.Pod) (*info.ContainerSpec, error)
+}
+
+type staticMinContainerEstimator struct {
+	memoryLimit uint64
+	cpuLimit    uint64
+}
+
+func (self *staticMinContainerEstimator) MinContainer(pod *api.Pod) (*info.ContainerSpec, error) {
+	return &info.ContainerSpec{
+		Cpu: &info.CpuSpec{
+			Limit: self.cpuLimit,
+		},
+		Memory: &info.MemorySpec{
+			Limit: self.memoryLimit,
+		},
+	}, nil
 }
 
 func (self *LeastLoadScheduler) Schedule(pod api.Pod, minionLister MinionLister) (string, error) {
@@ -336,6 +366,7 @@ func (self *LeastLoadScheduler) Schedule(pod api.Pod, minionLister MinionLister)
 		if err != nil {
 			return "", err
 		}
+		glog.Infof("machine %v has %v bytes of free memory", machine, r.Memory.Limit)
 		freeResources = append(freeResources, r)
 	}
 
@@ -347,5 +378,6 @@ func (self *LeastLoadScheduler) Schedule(pod api.Pod, minionLister MinionLister)
 	sort.Sort(semiorderSet)
 	selectedMachine := semiorderSet.machines[semiorderSet.Len()-1]
 	self.machineRecentScheduledTime[selectedMachine] = time.Now()
+	glog.Infof("select machine %v", selectedMachine)
 	return selectedMachine, nil
 }

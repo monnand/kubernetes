@@ -42,6 +42,19 @@ type HTTPContainerInfoGetter struct {
 	Port   int
 }
 
+func NewHTTPContainerInfoGetter(client *http.Client, port int) ContainerInfoGetter {
+	if client == nil {
+		client = http.DefaultClient
+	}
+	if port <= 0 {
+		port = 10250
+	}
+	return &HTTPContainerInfoGetter{
+		Client: client,
+		Port:   port,
+	}
+}
+
 func (self *HTTPContainerInfoGetter) GetMachineInfo(host string) (*info.MachineInfo, error) {
 	request, err := http.NewRequest(
 		"GET",

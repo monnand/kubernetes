@@ -17,7 +17,6 @@ limitations under the License.
 package master
 
 import (
-	"math/rand"
 	"net/http"
 	"time"
 
@@ -110,8 +109,9 @@ func minionRegistryMaker(c *Config) registry.MinionRegistry {
 func (m *Master) init(cloud cloudprovider.Interface, podInfoGetter client.PodInfoGetter) {
 	podCache := NewPodCache(podInfoGetter, m.podRegistry, time.Second*30)
 	go podCache.Loop()
-	random := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
-	s := scheduler.NewRandomFitScheduler(m.podRegistry, random)
+	// random := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
+	// s := scheduler.NewRandomFitScheduler(m.podRegistry, random)
+	s := scheduler.NewLeastLoadScheduler(m.podRegistry, client.NewHTTPContainerInfoGetter(nil, 0))
 	m.storage = map[string]apiserver.RESTStorage{
 		"pods": registry.MakePodRegistryStorage(m.podRegistry, podInfoGetter, s, m.minionRegistry, cloud, podCache),
 		"replicationControllers": registry.NewControllerRegistryStorage(m.controllerRegistry, m.podRegistry),
